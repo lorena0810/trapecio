@@ -24,21 +24,17 @@ if __name__ == "__main__":
     a = int(sys.argv[1])
     b = int(sys.argv[2])
     tramos = int(sys.argv[3])
-    area_par = np.array(0 , dtype ='i')
-    area_total = np.array(0 , dtype ='i')
+    area_par = np.array(0 , dtype ='f')
+    area_total = np.array(0 , dtype ='f')
     
-    tramosproc = int(tramos/size)
-    if(rank == 0):
-        an = 0
-        bn = an + tramosproc
+    if(rank != 0):
+        an = rank * int(tramos/size + 1)
+        bn = rank + 1 * int(tramos/size)
 
-
-        for j in range(1, size):
-
-            for i in range(an, bn):
-                area_par += integral(an, bn, i)
-            an = an + tramosproc
-            bn = bn + tramosproc
+        for i in range(an, bn):
+            area_par += integral(an, bn, i)
+            
 
     comm.Reduce(area_par, area_total, op=MPI.SUM , root = 0)
-    print("Area bajo la curva: ", area_total)
+    if(rank == 0):
+        print("Area bajo la curva: ", area_total)
